@@ -12,23 +12,36 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "app-builder-bin": "^5.0.0-alpha.10",
     "electron": "^32.1.2",
     "electron-builder": "^25.1.8"
   },
   "build": {
+    "electronVersion": "32.3.3",
     "appId": "com.livechatv2.overlayclient",
     "productName": "LiveChat Overlay",
     "files": [
       "src/**/*",
       "config.example.json"
     ],
-    "win": { "target": "nsis" },
-    "mac": { "target": "dmg", "category": "public.app-category.utilities" },
-    "linux": { "target": "AppImage" },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
     "publish": {
       "provider": "github",
       "owner": "Harrakos",
-      "repo": "livechat-overlay-client"
+      "repo": "livechat-overlay-client",
+      "releaseType": "release"
     }
+  },
+  "allowScripts": {
+    "electron@32.3.3": true
   }
 }
