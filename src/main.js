@@ -5,10 +5,7 @@ const { WsClient } = require('./wsClient');
 const { showMemeOverlay } = require('./overlayWindow');
 const { setupAutoUpdate, autoUpdater } = require('./autoUpdate');
 
-// Simple solid-color placeholder icon (16x16 Discord-blurple square) — swap
-// tray-icon.png for a real brand icon before shipping.
-const TRAY_ICON_DATA_URL =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGUlEQVR4nGOISP30nxLMMGrAqAGjBgwXAwCEoK4f/pwOKwAAAABJRU5ErkJggg==';
+const TRAY_ICON_PATH = path.join(__dirname, 'assets', 'tray-icon.png');
 
 // On Linux, transparent BrowserWindows often aren't actually transparent at
 // the GPU/compositor level without this switch — without it the window can
@@ -100,7 +97,14 @@ function onUpdateStatus(status) {
 }
 
 app.whenReady().then(() => {
-  const icon = nativeImage.createFromDataURL(TRAY_ICON_DATA_URL);
+  const icon = nativeImage.createFromPath(TRAY_ICON_PATH).resize({ width: 32, height: 32 });
+  // The icon is a plain white silhouette on transparent — mark it as a
+  // template image so macOS auto-inverts it for the current menu bar theme.
+  // (Windows/Linux trays don't have an equivalent; on a light taskbar/panel
+  // theme the white icon may be hard to see there.)
+  if (process.platform === 'darwin') {
+    icon.setTemplateImage(true);
+  }
   tray = new Tray(icon);
   tray.setToolTip('LiveChat Overlay');
   tray.setContextMenu(buildTrayMenu());
