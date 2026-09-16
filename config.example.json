@@ -1,0 +1,4 @@
+{
+  "serverWsUrl": "ws://localhost:8080/ws",
+  "clientToken": "change-me-client-token"
+}
