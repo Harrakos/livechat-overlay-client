@@ -19,7 +19,7 @@
   "build": {
     "electronVersion": "32.3.3",
     "appId": "com.livechatv2.overlayclient",
-    "productName": "LiveChat Overlay",
+    "productName": "LiveChat",
     "files": [
       "src/**/*",
       "config.example.json",

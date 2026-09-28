@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Anton';
+  src: url('../assets/fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -69,8 +76,9 @@ body {
   align-self: stretch;
   margin-top: 10px;
   color: #ffffff;
-  font-size: 22px;
-  font-weight: 700;
+  font-family: 'Anton', 'Segoe UI', Arial, sans-serif;
+  font-size: 26px;
+  font-weight: normal;
   text-align: center;
   text-shadow:
     -2px -2px 0 #000,

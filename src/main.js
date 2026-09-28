@@ -4,6 +4,7 @@ const { loadConfig } = require('./config');
 const { WsClient } = require('./wsClient');
 const { showMemeOverlay } = require('./overlayWindow');
 const { setupAutoUpdate, autoUpdater } = require('./autoUpdate');
+const { openSettingsWindow } = require('./settingsWindow');
 
 const TRAY_ICON_PATH = path.join(__dirname, 'assets', 'tray-icon.png');
 
@@ -65,6 +66,8 @@ function buildTrayMenu() {
 
   items.push(
     { type: 'separator' },
+    { label: 'Paramètres...', click: () => openSettingsWindow() },
+    { type: 'separator' },
     {
       label: 'Vérifier les mises à jour',
       click: () => {
@@ -83,7 +86,7 @@ function buildTrayMenu() {
 
 function refreshTray() {
   tray?.setContextMenu(buildTrayMenu());
-  tray?.setToolTip(`LiveChat Overlay — ${connectionLabel(connectionStatus)}`);
+  tray?.setToolTip(`LiveChat — ${connectionLabel(connectionStatus)}`);
 }
 
 function onConnectionStatus(status) {
@@ -106,7 +109,7 @@ app.whenReady().then(() => {
     icon.setTemplateImage(true);
   }
   tray = new Tray(icon);
-  tray.setToolTip('LiveChat Overlay');
+  tray.setToolTip('LiveChat');
   tray.setContextMenu(buildTrayMenu());
 
   app.setLoginItemSettings({ openAtLogin: true });

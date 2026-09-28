@@ -1,5 +1,6 @@
 const path = require('node:path');
 const { BrowserWindow, screen } = require('electron');
+const { loadSettings } = require('./settings');
 
 const OVERLAY_WIDTH = 480;
 const OVERLAY_HEIGHT = 360;
@@ -36,6 +37,10 @@ function showMemeOverlay(payload) {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      // The overlay window is created programmatically, never from a user
+      // click — without this, Electron/Chromium would silently block audio
+      // autoplay on videos that have sound.
+      autoplayPolicy: 'no-user-gesture-required',
     },
   });
 
@@ -45,8 +50,10 @@ function showMemeOverlay(payload) {
 
   win.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
 
+  const { volume } = loadSettings();
+
   win.webContents.once('did-finish-load', () => {
-    win.webContents.send('meme-data', payload);
+    win.webContents.send('meme-data', { ...payload, volume });
     win.showInactive();
   });
 

@@ -1,8 +1,8 @@
-# LiveChat Overlay — Client
+# LiveChat — Client
 
 Application Electron qui tourne en fond (tray) et affiche en overlay
 always-on-top les memes envoyés via la commande Discord `/meme` du projet
-[LiveChat Overlay](https://github.com/Harrakos/livechat-overlay-client).
+[LiveChat](https://github.com/Harrakos/livechat-overlay-client).
 
 ## Développement
 

@@ -1,0 +1,40 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  padding: 20px;
+  color: #1a1a1a;
+}
+
+h1 {
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type='range'] {
+  flex: 1;
+}
+
+#volume-value {
+  font-size: 13px;
+  width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

@@ -23,8 +23,9 @@ window.overlayApi.onMemeData((payload) => {
       video.src = payload.mediaUrl;
       video.autoplay = true;
       video.loop = true;
-      video.muted = true;
       video.playsInline = true;
+      video.volume = typeof payload.volume === 'number' ? Math.min(Math.max(payload.volume, 0), 1) : 0.5;
+      video.muted = video.volume === 0;
       mediaContainer.appendChild(video);
     } else {
       const img = document.createElement('img');
