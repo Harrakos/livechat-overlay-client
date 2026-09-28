@@ -22,12 +22,13 @@ body {
 }
 
 #root {
+  --scale: 1;
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  padding: calc(10px * var(--scale));
   opacity: 0;
   transition: opacity 0.25s ease-in-out;
 }
@@ -68,16 +69,16 @@ body {
 #media-container img,
 #media-container video {
   max-width: 100%;
-  max-height: 260px;
+  max-height: calc(260px * var(--scale));
   border-radius: 8px;
 }
 
 #caption {
   align-self: stretch;
-  margin-top: 10px;
+  margin-top: calc(10px * var(--scale));
   color: #ffffff;
   font-family: 'Anton', 'Segoe UI', Arial, sans-serif;
-  font-size: 26px;
+  font-size: calc(26px * var(--scale));
   font-weight: normal;
   text-align: center;
   text-shadow:
@@ -91,22 +92,22 @@ body {
 #author-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: calc(6px * var(--scale));
   background: rgba(0, 0, 0, 0.55);
   border-radius: 999px;
-  padding: 4px 10px 4px 4px;
-  margin-bottom: 8px;
+  padding: calc(4px * var(--scale)) calc(10px * var(--scale)) calc(4px * var(--scale)) calc(4px * var(--scale));
+  margin-bottom: calc(8px * var(--scale));
 }
 
 #author-avatar {
-  width: 24px;
-  height: 24px;
+  width: calc(24px * var(--scale));
+  height: calc(24px * var(--scale));
   border-radius: 50%;
   object-fit: cover;
 }
 
 #author-name {
   color: #ffffff;
-  font-size: 12px;
+  font-size: calc(12px * var(--scale));
   font-weight: 600;
 }

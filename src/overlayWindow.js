@@ -2,8 +2,8 @@ const path = require('node:path');
 const { BrowserWindow, screen } = require('electron');
 const { loadSettings } = require('./settings');
 
-const OVERLAY_WIDTH = 480;
-const OVERLAY_HEIGHT = 360;
+const BASE_WIDTH = 480;
+const BASE_HEIGHT = 360;
 const SCREEN_MARGIN_X = 12;
 const SCREEN_MARGIN_Y = 6;
 
@@ -11,18 +11,22 @@ function showMemeOverlay(payload) {
   const display = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight, x: originX, y: originY } = display.workArea;
 
+  const scaleFactor = typeof payload.scale === 'number' ? payload.scale / 100 : 1;
+  const windowWidth = Math.round(BASE_WIDTH * scaleFactor);
+  const windowHeight = Math.round(BASE_HEIGHT * scaleFactor);
+
   // x/y (0-100) place the window's top-left corner: 0 = flush against the
   // screen edge, 100 = flush against the opposite edge. This keeps the
   // window fully on-screen at every value.
-  const usableWidth = screenWidth - OVERLAY_WIDTH - SCREEN_MARGIN_X * 2;
-  const usableHeight = screenHeight - OVERLAY_HEIGHT - SCREEN_MARGIN_Y * 2;
+  const usableWidth = screenWidth - windowWidth - SCREEN_MARGIN_X * 2;
+  const usableHeight = screenHeight - windowHeight - SCREEN_MARGIN_Y * 2;
 
   const posX = originX + SCREEN_MARGIN_X + (payload.x / 100) * Math.max(usableWidth, 0);
   const posY = originY + SCREEN_MARGIN_Y + (payload.y / 100) * Math.max(usableHeight, 0);
 
   const win = new BrowserWindow({
-    width: OVERLAY_WIDTH,
-    height: OVERLAY_HEIGHT,
+    width: windowWidth,
+    height: windowHeight,
     x: Math.round(posX),
     y: Math.round(posY),
     frame: false,

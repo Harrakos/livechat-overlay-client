@@ -6,6 +6,7 @@ window.overlayApi.onMemeData((payload) => {
   const root = document.getElementById('root');
 
   root.classList.add(payload.x >= 50 ? 'align-right' : 'align-left');
+  root.style.setProperty('--scale', typeof payload.scale === 'number' ? payload.scale / 100 : 1);
 
   authorAvatar.src = payload.author.avatarUrl;
   authorName.textContent = payload.author.name;
