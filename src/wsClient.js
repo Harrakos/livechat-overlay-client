@@ -40,7 +40,11 @@ class WsClient extends EventEmitter {
     });
 
     ws.on('error', (error) => {
-      console.error('WebSocket error:', error.message);
+      console.error('WebSocket error:', error.code ?? '(no code)', error.message || '(no message)');
+    });
+
+    ws.on('unexpected-response', (_req, res) => {
+      console.error('WebSocket rejected at handshake, HTTP status:', res.statusCode);
     });
   }
 

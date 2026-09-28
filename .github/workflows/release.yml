@@ -27,6 +27,25 @@ jobs:
 
       - run: npm ci
 
+      # Bakes the real production server URL + token into the app so a
+      # fresh install works with zero manual config. The token is a
+      # GitHub Actions secret — never committed to the repo — so it's
+      # never readable on the (public) GitHub page, only inside the
+      # compiled installers this workflow publishes.
+      - name: Generate bundled default config
+        shell: bash
+        run: |
+          node -e "
+            const fs = require('fs');
+            fs.writeFileSync('config.default.json', JSON.stringify({
+              serverWsUrl: process.env.PROD_SERVER_WS_URL,
+              clientToken: process.env.PROD_CLIENT_TOKEN,
+            }, null, 2));
+          "
+        env:
+          PROD_SERVER_WS_URL: wss://meme.miams-recipes.fr/ws
+          PROD_CLIENT_TOKEN: ${{ secrets.PROD_CLIENT_TOKEN }}
+
       - run: npm run build -- --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

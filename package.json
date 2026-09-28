@@ -22,7 +22,8 @@
     "productName": "LiveChat Overlay",
     "files": [
       "src/**/*",
-      "config.example.json"
+      "config.example.json",
+      "config.default.json"
     ],
     "win": {
       "target": "nsis"
