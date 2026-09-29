@@ -2,7 +2,7 @@ const path = require('node:path');
 const { app, Tray, Menu, nativeImage } = require('electron');
 const { loadConfig } = require('./config');
 const { WsClient } = require('./wsClient');
-const { showMemeOverlay } = require('./overlayWindow');
+const { showMemeOverlay, clearQueue } = require('./overlayWindow');
 const { setupAutoUpdate, autoUpdater } = require('./autoUpdate');
 const { openSettingsWindow } = require('./settingsWindow');
 
@@ -23,6 +23,9 @@ let tray;
 let wsClient;
 let connectionStatus = 'connecting';
 let updateStatus = 'idle';
+// In-memory only on purpose: a restart always resumes reception, so nobody
+// ends up silently muted forever after forgetting they paused.
+let paused = false;
 
 function connectionLabel(status) {
   switch (status) {
@@ -54,7 +57,13 @@ function updateLabel(status) {
 }
 
 function buildTrayMenu() {
-  const items = [{ label: connectionLabel(connectionStatus), enabled: false }];
+  const items = [
+    { label: connectionLabel(connectionStatus), enabled: false },
+    {
+      label: paused ? '▶ Reprendre la réception des memes' : '⏸ Mettre en pause la réception',
+      click: () => setPaused(!paused),
+    },
+  ];
 
   const updateItemLabel = updateLabel(updateStatus);
   if (updateItemLabel) {
@@ -86,7 +95,24 @@ function buildTrayMenu() {
 
 function refreshTray() {
   tray?.setContextMenu(buildTrayMenu());
-  tray?.setToolTip(`LiveChat — ${connectionLabel(connectionStatus)}`);
+  const pausedSuffix = paused ? ' (en pause)' : '';
+  tray?.setToolTip(`LiveChat — ${connectionLabel(connectionStatus)}${pausedSuffix}`);
+}
+
+function setPaused(value) {
+  paused = value;
+  // Pausing also drops memes still waiting in the queue, otherwise they
+  // would pop up right after resuming, long after they were sent.
+  if (paused) clearQueue();
+  refreshTray();
+}
+
+function onMeme(payload) {
+  console.log(`Meme received: scale=${payload.scale} duration=${payload.duration} x=${payload.x} y=${payload.y}`);
+  // The WebSocket stays connected while paused so resuming is instant;
+  // memes that arrive in the meantime are simply dropped, not queued.
+  if (paused) return;
+  showMemeOverlay(payload);
 }
 
 function onConnectionStatus(status) {
@@ -120,7 +146,7 @@ app.whenReady().then(() => {
   wsClient = new WsClient(config);
 
   wsClient.on('status', onConnectionStatus);
-  wsClient.on('meme', showMemeOverlay);
+  wsClient.on('meme', onMeme);
   wsClient.connect();
 });
 
