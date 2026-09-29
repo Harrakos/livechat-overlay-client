@@ -94,25 +94,29 @@ body {
     0 0 8px #000;
 }
 
+/* The whole badge (avatar, name, spacing) keeps a fixed size: it does not
+   follow --scale / `taille`. Values are the ones measured at the default
+   size (previous design values * 1.5). */
 #author-badge {
   display: flex;
   align-items: center;
-  gap: calc(6px * var(--scale));
+  gap: 9px;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 999px;
-  padding: calc(4px * var(--scale)) calc(10px * var(--scale)) calc(4px * var(--scale)) calc(4px * var(--scale));
-  margin-bottom: calc(8px * var(--scale));
+  padding: 6px 15px 6px 6px;
+  margin-bottom: 12px;
 }
 
 #author-avatar {
-  width: calc(24px * var(--scale));
-  height: calc(24px * var(--scale));
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   border-radius: 50%;
   object-fit: cover;
 }
 
 #author-name {
   color: #ffffff;
-  font-size: calc(12px * var(--scale));
+  font-size: 18px;
   font-weight: 600;
 }
