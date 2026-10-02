@@ -21,16 +21,15 @@ body {
   user-select: none;
 }
 
+/* Only the media follows `taille` (it is sized from the window in
+   overlay.js). Everything else - padding, badge, caption - has a fixed size. */
 #root {
-  --scale: 1;
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: calc(10px * var(--scale));
-  opacity: 0;
-  transition: opacity 0.25s ease-in-out;
+  padding: 15px;
 }
 
 #root.align-left {
@@ -48,14 +47,6 @@ body {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-}
-
-#root.fade-in {
-  opacity: 1;
-}
-
-#root.fade-out {
-  opacity: 0;
 }
 
 #media-container {
@@ -80,10 +71,10 @@ body {
 
 #caption {
   align-self: stretch;
-  margin-top: calc(10px * var(--scale));
+  margin-top: 15px;
   color: #ffffff;
   font-family: 'Anton', 'Segoe UI', Arial, sans-serif;
-  font-size: calc(26px * var(--scale));
+  font-size: 39px;
   font-weight: normal;
   text-align: center;
   text-shadow:
@@ -94,9 +85,7 @@ body {
     0 0 8px #000;
 }
 
-/* The whole badge (avatar, name, spacing) keeps a fixed size: it does not
-   follow --scale / `taille`. Values are the ones measured at the default
-   size (previous design values * 1.5). */
+/* The whole badge (avatar, name, spacing) keeps a fixed size. */
 #author-badge {
   display: flex;
   align-items: center;

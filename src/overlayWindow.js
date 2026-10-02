@@ -2,17 +2,22 @@ const path = require('node:path');
 const { BrowserWindow, screen } = require('electron');
 const { loadSettings } = require('./settings');
 
-// Window size at taille=100. The renderer's CSS is designed around
-// DESIGN_WIDTH, so it is scaled by (actual width / DESIGN_WIDTH).
+// Window size at taille=100.
 const BASE_WIDTH = 720;
 const BASE_HEIGHT = 540;
-const DESIGN_WIDTH = 480;
+// Floor for small `taille` values. The badge and caption keep a fixed size,
+// so below this they would no longer fit and get cropped.
+const MIN_WIDTH = 360;
+const MIN_HEIGHT = 270;
 const SCREEN_MARGIN_X = 12;
 const SCREEN_MARGIN_Y = 6;
 
 // Memes are shown one at a time: a meme that arrives while another is on
 // screen waits its turn instead of stacking on top of it.
 const MAX_PENDING = 20; // guards against spam piling up minutes of memes
+// Safety nets so a broken meme can never block the queue forever.
+const LOAD_TIMEOUT_MS = 20_000; // the renderer never reported the meme ready
+const MAX_SHOW_MS = 135_000; // the renderer never reported it finished (longest video is 120s)
 const queue = [];
 let showing = false;
 
@@ -50,9 +55,8 @@ function displayMeme(payload, onDone) {
     (screenWidth - SCREEN_MARGIN_X * 2) / (BASE_WIDTH * scaleFactor),
     (screenHeight - SCREEN_MARGIN_Y * 2) / (BASE_HEIGHT * scaleFactor),
   );
-  const windowWidth = Math.round(BASE_WIDTH * scaleFactor * fitFactor);
-  const windowHeight = Math.round(BASE_HEIGHT * scaleFactor * fitFactor);
-  const uiScale = windowWidth / DESIGN_WIDTH;
+  const windowWidth = Math.max(Math.round(BASE_WIDTH * scaleFactor * fitFactor), MIN_WIDTH);
+  const windowHeight = Math.max(Math.round(BASE_HEIGHT * scaleFactor * fitFactor), MIN_HEIGHT);
 
   // x/y (0-100) place the window's top-left corner: 0 = flush against the
   // screen edge, 100 = flush against the opposite edge. This keeps the
@@ -84,6 +88,9 @@ function displayMeme(payload, onDone) {
       // click — without this, Electron/Chromium would silently block audio
       // autoplay on videos that have sound.
       autoplayPolicy: 'no-user-gesture-required',
+      // The window stays hidden while its media loads; do not let Chromium
+      // throttle the page in the meantime.
+      backgroundThrottling: false,
     },
   });
 
@@ -95,17 +102,33 @@ function displayMeme(payload, onDone) {
 
   const { volume } = loadSettings();
 
-  win.webContents.once('did-finish-load', () => {
-    win.webContents.send('meme-data', { ...payload, volume, uiScale });
+  const closeWindow = () => {
+    if (!win.isDestroyed()) win.close();
+  };
+
+  // The window stays hidden until the renderer has loaded the avatar and
+  // the media and says it is ready, so everything appears at the same time.
+  let hardTimer = null;
+  const loadTimer = setTimeout(closeWindow, LOAD_TIMEOUT_MS);
+
+  win.webContents.ipc.handle('overlay:ready', () => {
+    clearTimeout(loadTimer);
+    if (win.isDestroyed()) return;
     win.showInactive();
+    hardTimer = setTimeout(closeWindow, MAX_SHOW_MS);
+  });
+  // The renderer decides how long the meme lasts (a video plays to its end),
+  // and tells us when it has finished fading out.
+  win.webContents.ipc.on('overlay:done', closeWindow);
+  win.webContents.on('render-process-gone', closeWindow);
+
+  win.webContents.once('did-finish-load', () => {
+    win.webContents.send('meme-data', { ...payload, volume });
   });
 
-  const closeTimer = setTimeout(() => {
-    if (!win.isDestroyed()) win.close();
-  }, payload.duration * 1000 + 500);
-
   win.on('closed', () => {
-    clearTimeout(closeTimer);
+    clearTimeout(loadTimer);
+    clearTimeout(hardTimer);
     onDone();
   });
 }
